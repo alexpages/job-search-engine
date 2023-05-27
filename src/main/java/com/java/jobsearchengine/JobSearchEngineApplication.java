@@ -1,5 +1,6 @@
 package com.java.jobsearchengine;
 
+import com.java.jobsearchengine.job.Job;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,10 +14,5 @@ public class JobSearchEngineApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(JobSearchEngineApplication.class, args);
-	}
-
-	@GetMapping("/")
-	public List<String> hello(){
-		return List.of("Hello","World");
 	}
 }
