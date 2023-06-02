@@ -1,11 +1,15 @@
 package com.java.jobsearchengine.job;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
+@Document("job")
 public class Job {
+
+    @MongoId
     private Long id;
     private String title;
     private String company;
     private String link;
-
     public Job() {
     }
 

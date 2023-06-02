@@ -12,15 +12,17 @@ import java.util.List;
 public class JobController {
 
     private final JobService jobService;
+    private final JobRepository jobRepository;
+
     @Autowired
-    public JobController(JobService jobService) {
+    public JobController(JobService jobService, JobRepository jobRepository) {
         this.jobService = jobService;
+        this.jobRepository = jobRepository;
     }
 
     @GetMapping("/")
     public List<Job> getJobs(){
         return jobService.getJobs();
     }
-
 
 }
