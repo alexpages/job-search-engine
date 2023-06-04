@@ -1,11 +1,12 @@
 package com.java.jobsearchengine.job;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 @Document("job")
 public class Job {
 
-    @MongoId
+    @Id
     private Long id;
     private String title;
     private String company;
