@@ -1,9 +1,7 @@
 package com.java.jobsearchengine.job;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,5 +22,15 @@ public class JobController {
     public List<Job> getJobs(){
         return jobService.getJobs();
     }
+
+    @PostMapping("/post")
+    public void postJobs(@RequestBody Job job){
+        jobService.postJobs(job);
+    }
+//
+//    @DeleteMapping("/delete/")
+//    public void deleteJobs(@RequestBody Job job){
+//        jobService.deleteJobs(job);
+//    }
 
 }

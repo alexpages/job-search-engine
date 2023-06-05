@@ -5,34 +5,27 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 
 @Document("job")
 public class Job {
-
     @Id
-    private Long id;
+    private String id;
     private String title;
     private String company;
     private String link;
     public Job() {
     }
 
-    public Job(Long id, String title, String company) {
-        this.id = id;
+    public Job(String title, String company) {
         this.title = title;
         this.company = company;
     }
 
-    public Job(Long id, String title, String company, String link) {
-        this.id = id;
+    public Job(String title, String company, String link) {
         this.title = title;
         this.company = company;
         this.link = link;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getTitle() {

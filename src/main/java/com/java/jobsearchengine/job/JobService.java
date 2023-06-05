@@ -19,5 +19,12 @@ public class JobService {
         return jobRepository.findAll();
     }
 
+    public void postJobs(Job job) {
+        jobRepository.insert(job);
+        System.out.println("'"+job.getTitle()+"'" + " Has been added");
+    }
 
+    public void deleteJobs(Job job) {
+        jobRepository.delete(job);
+    }
 }

@@ -25,3 +25,7 @@ To check if there is any dbs created:
   - If you have started application before creating manually the db, you will see that mongodb has created a db in the moment of startup.
 
 More info: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/
+
+
+**Future Enhancements**
+- Implement Lombok library for POJO
