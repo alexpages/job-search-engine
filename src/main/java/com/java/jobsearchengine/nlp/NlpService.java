@@ -14,22 +14,11 @@ public class NlpService {
     private static final String[] keyWords = {"experience", "years"};
 
     @Bean
-    public static boolean scoreKeyWords() {
-        String jobDescription = "Position Requirements\n" +
-                "\n" +
-                "MS or Equivalent\n" +
-                "Working knowledge of : Java, J2EE, Javascript, XML, HTML, CSS, Tomcat, Ant, Eclipse\n" +
-                "Database knowledge: PL/SQL, PostgreSQL, Oracle\n" +
-                "At least 1 year of relevant experience\n" +
-                "Basic knowlage of Retail flows\n" +
-                "Other tools: Hibernate, Weld, HQL, RESTful web services, Jasper Reports, HTLM5, React, IndexedDB, Cypress\n" +
-                "Product quality focus\n" +
-                "Proven ability to meet deadlines\n" +
-                "High level of English (Spanish and/or French would be a valuable plus)";
-        String[] sentences = detectSentence(jobDescription);
+    public static boolean scoreKeyWords(String jobDescription) {
+        String[] sentences = detectSentence(jobDescription.replaceAll("\n", "."));
         for (String sentence : sentences){
-            if (containsKeyWords(sentence)) {            // Check if the sentence contains relevant keywords
-                if (containsYoe(sentence)) {                 // Process the sentence to determine if it refers to 0-2 years of experience
+            if (containsKeyWords(sentence)) {   // Check if the sentence contains relevant keywords
+                if (containsYoe(sentence)) {    // Process the sentence to determine if it refers to 0-2 years of experience
                     return true;
                 }
             }
@@ -37,7 +26,7 @@ public class NlpService {
         return false;
     }
 
-    private static String[] detectSentence(String paragraph) {
+    public static String[] detectSentence(String paragraph) {
         String[] sentences = null;
         InputStream is = NlpService.class.getResourceAsStream("/models/en-sent.bin"); //Model for sentence detection
         try {
@@ -50,14 +39,14 @@ public class NlpService {
         return sentences;
     }
 
-    private static boolean containsKeyWords(String sentence){
+    public static boolean containsKeyWords(String sentence){
         for (String word : keyWords){
             if (sentence.contains(word)) return true;
         }
         return false;
     }
 
-    private static boolean containsYoe(String sentence){
+    public static boolean containsYoe(String sentence){
         sentence = sentence.toLowerCase();
         return sentence.matches(".*\\b(0|1|2)\\b.*"); //regex
     }

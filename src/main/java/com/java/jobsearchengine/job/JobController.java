@@ -27,10 +27,10 @@ public class JobController {
     public void postJobs(@RequestBody Job job){
         jobService.postJobs(job);
     }
-//
-//    @DeleteMapping("/delete/")
-//    public void deleteJobs(@RequestBody Job job){
-//        jobService.deleteJobs(job);
-//    }
+
+    @DeleteMapping("/delete")
+    public void deleteJobs(@RequestBody Job job){
+        jobService.deleteJobs(job);
+    }
 
 }

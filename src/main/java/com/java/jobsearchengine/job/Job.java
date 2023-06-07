@@ -6,21 +6,27 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Document("job")
 public class Job {
     @Id
-    private String id;
+    private String id; //to be updated
     private String title;
     private String company;
+    private String description;
+    private String contact;
     private String link;
+
     public Job() {
     }
 
-    public Job(String title, String company) {
+    public Job(String title, String company, String contact) {
         this.title = title;
         this.company = company;
+        this.contact = contact;
     }
 
-    public Job(String title, String company, String link) {
+    public Job(String title, String company, String description, String contact, String link) {
         this.title = title;
         this.company = company;
+        this.description = description;
+        this.contact = contact;
         this.link = link;
     }
 
@@ -50,5 +56,21 @@ public class Job {
 
     public void setYoe(String link) {
         this.link = link;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
     }
 }
