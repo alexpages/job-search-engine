@@ -2,7 +2,6 @@ package com.java.jobsearchengine.nlp;
 
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
-import opennlp.tools.tokenize.SimpleTokenizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import java.io.InputStream;
