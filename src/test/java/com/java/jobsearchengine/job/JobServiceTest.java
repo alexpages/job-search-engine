@@ -13,7 +13,6 @@ class JobServiceTest {
         this.underTest = underTest;
     }
 
-
     @Test
     void getJobs() {
     }

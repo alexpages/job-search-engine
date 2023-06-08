@@ -6,7 +6,7 @@ Main purpose of this app is to optimize job search with NLP. The elements of the
 - Java and Spring Boot
 - Apache Kafka for messaging queue
 - Open NLP for Business Layer as in language processing
-- JSoup for HTML/Web Scraping
+- JSoup and Selenium for HTML/Web Scraping
 - MongoDB for Data Base
 - Spring Web for minimal frontend
 
