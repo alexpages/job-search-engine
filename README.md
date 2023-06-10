@@ -19,6 +19,18 @@ LinkedIn experience filter is unreliable. It can be seen in the picture below:
 It is intended to develop the project with an N-tier architecture.
 
 ***
+### Architecture
+
+N-Tier layer. Distributed according to:
+- Entity/Model/POJO layers
+- Controller Layers
+- Service Layers
+- Database
+
+Overview can be seen below:
+![](src/main/resources/architeture.png)
+
+***
 ### Web Scrapper
 
 Web Scrapping is done under two main dependencies:
@@ -60,17 +72,6 @@ To check if there is any dbs created:
   - If you have started application before creating manually the db, you will see that mongodb has created a db in the moment of startup.
 
 More info: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/
-
-****
-### Architecture 
-
-N-Tier layer. Distributed according to:
-- Entity/Model/POJO layers
-- Controller Layers
-- Service Layers
-- Database
-
-Tbd
 
 ****
 **Future Enhancements**

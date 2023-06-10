@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class NlpServiceTest {
 
@@ -26,7 +25,7 @@ class NlpServiceTest {
                 "Proven ability to meet deadlines\n" +
                 "High level of English (Spanish and/or French would be a valuable plus)";
         //when
-        boolean result = underTest.scoreKeyWords(jobDescription);
+        boolean result = underTest.validateJob(jobDescription);
         //then
         assertThat(result).isTrue();
     }

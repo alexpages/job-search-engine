@@ -1,16 +1,32 @@
 package com.java.jobsearchengine.api;
 
-import org.springframework.web.bind.annotation.RestController;
+import com.java.jobsearchengine.job.Job;
+import com.java.jobsearchengine.job.JobController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
+@RequestMapping(path = "api/v1/request")
 public class ApiController {
 
+    private final JobController jobController;
+    private final ApiService apiService;
 
+    @Autowired
+    public ApiController(JobController jobController, ApiService apiService) {
+        this.jobController = jobController;
+        this.apiService = apiService;
+    }
 
-    //Fetch jobs -> Scheduled every 10 minutes
+    @GetMapping("/") //Request
+    public List<Job> getJobs(String jobTitle, String location){
+        if (apiService.validateLocation(location)){
+            return jobController.getJobs(jobTitle, location);
+        }
+        return null;
+    }
 
-    //Get jobs -> job title, location
-    //  No jobs -> call fetching calling WebScrappingController, then call JobController to show
-    //  Jobs -> get jobs calling JobController
 
 }

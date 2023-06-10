@@ -1,5 +1,6 @@
 package com.java.jobsearchengine.webscraper;
 
+import com.java.jobsearchengine.nlp.NlpController;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -10,26 +11,21 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class WebScraperService {
 
-    private String URL = "https://www.linkedin.com/jobs/collections/recommended/?currentJobId=3629866884";
-
     @Autowired
     private final ChromeDriver driver;
+    private final NlpController nlpController;
 
     @Autowired
-    public WebScraperService(ChromeDriver driver) {
+    public WebScraperService(ChromeDriver driver, NlpController nlpController) {
         this.driver = driver;
+        this.nlpController = nlpController;
     }
-
-//    public ArrayList<String> obtainMetadata(WebElement baseCard){
-//        ArrayList<String> metadata = new ArrayList<>();
-//
-//    }
-
 
     public ArrayList<String> obtainJobUrls (String jobTitle, String location) {
         ArrayList<String> links = new ArrayList<>();
@@ -42,8 +38,8 @@ public class WebScraperService {
                 "&pageNum=0";
         driver.get(mainURL);
         //Obtain entire job board div and get all 'li' elements (job cards)
-        WebElement jobSearchBoard = driver.findElement(By.className("jobs-search__results-list"));
-
+        WebElement jobSearchBoard = new WebDriverWait(driver, Duration.ofSeconds(4))
+                .until(ExpectedConditions.presenceOfElementLocated(By.className("jobs-search__results-list")));
         List<WebElement> jobCards = jobSearchBoard
                 .findElements(By.className("base-card"));
         //Obtain all links by pressing on every card and getting current url
@@ -51,25 +47,56 @@ public class WebScraperService {
             jobCard.findElement(By.tagName("a")).click();
             links.add(driver.getCurrentUrl());
         }
-        driver.quit();
         return links;
     }
 
-    public String obtainJobDescription(String URL)
-    {
+    public String obtainJobDescription(String URL){
         StringBuilder sb = new StringBuilder();
         //Go to webpage
         driver.get(URL);
         //Find and click 'Show More button'
-        WebElement button = new WebDriverWait(driver, Duration.ofSeconds(1))
-                .until(ExpectedConditions.presenceOfElementLocated(By.
-                        xpath("/html/body/div[3]/div/section/div[2]/div/section[1]/div/div/section/button[1]")));
+        WebElement button = new WebDriverWait(driver, Duration.ofSeconds(4))
+                .until(ExpectedConditions.presenceOfElementLocated(By
+                        .xpath("/html/body/div[3]/div/section/div[2]/div/section[1]/div/div/section/button[1]")));
         button.click();
         //Find class of Job Description
-        final WebElement jobDescription = driver.findElement(By.
-                xpath("/html/body/div[3]/div/section/div[2]/div/section[1]/div/div/section/div"));
+        final WebElement jobDescription = driver.findElement(By
+                .className("show-more-less-html__markup"));
         sb.append(jobDescription.getText());
-        driver.quit();
+        driver.close();
         return sb.toString();
+    }
+
+    public List<String> obtainJobInfo(WebElement webElement) {
+        List<String> extractedInfo = new ArrayList<>();
+        extractedInfo.add(webElement.findElement(By.className("top-card-layout__title")).getText());
+        extractedInfo.add(webElement.findElement(By.className("topcard__flavor")).getText());
+        extractedInfo.add(webElement.findElement(By.className("topcard__flavor--bullet")).getText());
+        extractedInfo.add(webElement.findElement(By.className("posted-time-ago__text")).getText());
+        return extractedInfo;
+    }
+
+    public List<List<String>> fetchNewData(String jobTitle, String location){
+        List<List<String>>scrapedJobs = null;
+        ArrayList<String> finalLinks = null;
+
+        ArrayList<String> links = obtainJobUrls(jobTitle, location);
+        for (String link : links){
+            String description = obtainJobDescription(link);
+            boolean result = nlpController.validateJob(description);
+            if(nlpController.validateJob(obtainJobDescription(link))){
+                finalLinks.add(link);
+            }
+        }
+        for (String finalLink : finalLinks){
+            driver.get(finalLink);
+            WebElement webElement = new WebDriverWait(driver, Duration.ofSeconds(4))
+                    .until(ExpectedConditions.presenceOfElementLocated(By
+                            .xpath("/html/body/div[3]/div/section/div[2]/section/div")));
+            scrapedJobs.add(obtainJobInfo(webElement));
+            driver.close();
+        }
+        driver.quit();
+        return scrapedJobs;
     }
 }

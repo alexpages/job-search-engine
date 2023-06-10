@@ -13,7 +13,7 @@ public class NlpService {
     private static final String[] keyWords = {"experience", "years"};
 
     @Bean
-    public static boolean scoreKeyWords(String jobDescription) {
+    public static boolean validateJob(String jobDescription) {
         String[] sentences = detectSentence(jobDescription.replaceAll("\n", "."));
         for (String sentence : sentences){
             if (containsKeyWords(sentence)) {   // Check if the sentence contains relevant keywords
