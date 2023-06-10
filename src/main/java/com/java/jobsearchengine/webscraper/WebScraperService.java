@@ -1,9 +1,9 @@
 package com.java.jobsearchengine.webscraper;
 
 import com.java.jobsearchengine.nlp.NlpController;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +11,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class WebScraperService {
 
-    @Autowired
     private final ChromeDriver driver;
     private final NlpController nlpController;
 
@@ -27,9 +26,53 @@ public class WebScraperService {
         this.nlpController = nlpController;
     }
 
-    public ArrayList<String> obtainJobUrls (String jobTitle, String location) {
-        ArrayList<String> links = new ArrayList<>();
-        //Create main URL
+    public String obtainJobUrl (WebElement webElement) {
+//        String link = webElement.findElement(By.cssSelector("a.base-card__full-link")).getAttribute("href");
+        String link = webElement.findElement(By
+                .xpath("//*[@id=\"main-content\"]/section[2]/ul/li[1]/div"))
+                .findElement(By.xpath("//*[@id=\"main-content\"]/section[2]/ul/li[1]/div/a")).getAttribute("href");
+
+        return link;
+    }
+
+    public String obtainJobDescription(WebElement webElement){
+        new WebDriverWait(driver, Duration.ofSeconds(2))
+                .until(ExpectedConditions.presenceOfElementLocated(By
+                        .className("show-more-less-html__button"))).click();
+
+        String description = new WebDriverWait(driver, Duration.ofSeconds(2))
+                .until(ExpectedConditions.presenceOfElementLocated(By
+                        .className("description__text"))).getText();
+
+//        String description = webElement.findElement(By.className("show-more-less-html__markup")).getText();
+        ///html/body/div[3]/div/section/div[2]/div/section[1]/div/div/section/div
+        ///html/body/div[3]/div/section/div[2]/div/section[1]/div/div
+
+        //show-more-less-html__markup
+//        show-more-less-html__markup
+
+        return description;
+    }
+
+    public List<String> obtainJobInfo(WebElement webElement) {
+        List<String> extractedInfo = new ArrayList<>();
+        extractedInfo.add(new WebDriverWait(driver, Duration.ofSeconds(2)) //Job title
+                .until(ExpectedConditions.presenceOfElementLocated(By
+                .xpath("//*[@id=\"main-content\"]/section[2]/ul/li[1]/div/div[2]/h3"))).getText());
+        extractedInfo.add(new WebDriverWait(driver, Duration.ofSeconds(2)) //Company
+                .until(ExpectedConditions.presenceOfElementLocated(By
+                        .xpath("//*[@id=\"main-content\"]/section[2]/ul/li[1]/div/div[2]/h4"))).getText());
+        extractedInfo.add(new WebDriverWait(driver, Duration.ofSeconds(2)) //Location
+                .until(ExpectedConditions.presenceOfElementLocated(By
+                        .xpath("//*[@id=\"main-content\"]/section[2]/ul/li[1]/div/div[2]/div/span"))).getText());
+        extractedInfo.add(new WebDriverWait(driver, Duration.ofSeconds(2)) //Time
+                .until(ExpectedConditions.presenceOfElementLocated(By
+                        .xpath("//*[@id=\"main-content\"]/section[2]/ul/li[1]/div/div[2]/div/time"))).getText());
+        return extractedInfo;
+    }
+
+    public List<List<String>> fetchNewData(String jobTitle, String location){
+        //Get first 25 job cards
         String mainURL = "https://www.linkedin.com/jobs/search?" +
                 "keywords=" + jobTitle +
                 "&location=" + location +
@@ -37,66 +80,37 @@ public class WebScraperService {
                 "position=" + "1" +
                 "&pageNum=0";
         driver.get(mainURL);
-        //Obtain entire job board div and get all 'li' elements (job cards)
-        WebElement jobSearchBoard = new WebDriverWait(driver, Duration.ofSeconds(4))
-                .until(ExpectedConditions.presenceOfElementLocated(By.className("jobs-search__results-list")));
-        List<WebElement> jobCards = jobSearchBoard
-                .findElements(By.className("base-card"));
-        //Obtain all links by pressing on every card and getting current url
-        for (WebElement jobCard: jobCards){
-            jobCard.findElement(By.tagName("a")).click();
-            links.add(driver.getCurrentUrl());
-        }
-        return links;
-    }
-
-    public String obtainJobDescription(String URL){
-        StringBuilder sb = new StringBuilder();
-        //Go to webpage
-        driver.get(URL);
-        //Find and click 'Show More button'
-        WebElement button = new WebDriverWait(driver, Duration.ofSeconds(4))
+        WebElement jobSearchBoard = new WebDriverWait(driver, Duration.ofSeconds(2))
                 .until(ExpectedConditions.presenceOfElementLocated(By
-                        .xpath("/html/body/div[3]/div/section/div[2]/div/section[1]/div/div/section/button[1]")));
-        button.click();
-        //Find class of Job Description
-        final WebElement jobDescription = driver.findElement(By
-                .className("show-more-less-html__markup"));
-        sb.append(jobDescription.getText());
-        driver.close();
-        return sb.toString();
-    }
+                        .xpath("//*[@id=\"main-content\"]/section[2]/ul")));
+        List<WebElement> jobCards = jobSearchBoard
+                .findElements(By.className("base-card__full-link"));
 
-    public List<String> obtainJobInfo(WebElement webElement) {
-        List<String> extractedInfo = new ArrayList<>();
-        extractedInfo.add(webElement.findElement(By.className("top-card-layout__title")).getText());
-        extractedInfo.add(webElement.findElement(By.className("topcard__flavor")).getText());
-        extractedInfo.add(webElement.findElement(By.className("topcard__flavor--bullet")).getText());
-        extractedInfo.add(webElement.findElement(By.className("posted-time-ago__text")).getText());
-        return extractedInfo;
-    }
-
-    public List<List<String>> fetchNewData(String jobTitle, String location){
-        List<List<String>>scrapedJobs = null;
-        ArrayList<String> finalLinks = null;
-
-        ArrayList<String> links = obtainJobUrls(jobTitle, location);
-        for (String link : links){
-            String description = obtainJobDescription(link);
-            boolean result = nlpController.validateJob(description);
-            if(nlpController.validateJob(obtainJobDescription(link))){
-                finalLinks.add(link);
+        //Iterate over every job card
+        List<List<String>>scrapedJobs = new ArrayList<>();
+        for (WebElement jobCard: jobCards) {
+            jobCard.click();
+            scrollDown(driver);
+            String jobDescription = obtainJobDescription(jobCard);
+            //Is a valid job
+            boolean verification = nlpController.validateJob(jobDescription);
+            if (verification) {
+                List<String> info = obtainJobInfo(jobCard);
+                info.add(obtainJobUrl(jobCard));
+                scrapedJobs.add(info);
             }
-        }
-        for (String finalLink : finalLinks){
-            driver.get(finalLink);
-            WebElement webElement = new WebDriverWait(driver, Duration.ofSeconds(4))
-                    .until(ExpectedConditions.presenceOfElementLocated(By
-                            .xpath("/html/body/div[3]/div/section/div[2]/section/div")));
-            scrapedJobs.add(obtainJobInfo(webElement));
-            driver.close();
         }
         driver.quit();
         return scrapedJobs;
     }
+
+    private static void scrollDown(WebDriver driver) {
+        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+        int scrollIncrement = 17;
+        int totalScroll = scrollIncrement * 10;
+        for (int i = 0; i < totalScroll; i += scrollIncrement) {
+            jsExecutor.executeScript("window.scrollBy(0, " + scrollIncrement + ");");
+        }
+    }
+
 }

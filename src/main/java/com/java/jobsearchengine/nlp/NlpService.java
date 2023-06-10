@@ -2,7 +2,6 @@ package com.java.jobsearchengine.nlp;
 
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import java.io.InputStream;
 
@@ -12,7 +11,6 @@ public class NlpService {
 
     private static final String[] keyWords = {"experience", "years"};
 
-    @Bean
     public static boolean validateJob(String jobDescription) {
         String[] sentences = detectSentence(jobDescription.replaceAll("\n", "."));
         for (String sentence : sentences){

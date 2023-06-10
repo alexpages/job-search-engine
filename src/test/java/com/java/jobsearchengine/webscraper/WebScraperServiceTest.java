@@ -1,6 +1,7 @@
 package com.java.jobsearchengine.webscraper;
 
 import com.java.jobsearchengine.nlp.NlpController;
+import com.java.jobsearchengine.nlp.NlpService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +14,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -23,16 +25,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(MockitoExtension.class)
 class WebScraperServiceTest {
 
-    private NlpController nlpController;
+    @Mock private NlpService nlpService;
+    @InjectMocks private NlpController nlpController;
+    private ChromeDriver driver = new ChromeDriver();
     private WebScraperService underTest;
-    ChromeDriver driver = new ChromeDriver();
 
     @BeforeEach
     void setUp() {
         underTest = new WebScraperService(driver, nlpController);
     }
     @AfterEach
-    void finish(){
+    void tearDown() throws Exception {
         driver.quit();
     }
 
@@ -40,22 +43,31 @@ class WebScraperServiceTest {
     @Order(1)
     void obtainJobUrls() {
         //given
-        String location = "Germany";
-        String jobTitle = "Junior Java";
+        String URL = "https://www.linkedin.com/jobs/search?keywords=Junior%20Java&location=Germany&trk=public_jobs_jobs-search-bar_search-submit&position=2&pageNum=0&currentJobId=3625258171";
+        driver.get(URL);
+        WebElement jobCard = new WebDriverWait(driver, Duration.ofSeconds(4))
+                .until(ExpectedConditions.presenceOfElementLocated(By
+                        .className("base-card")));
         //when
-        ArrayList<String> result = underTest.obtainJobUrls(jobTitle,location);
+        String result = underTest.obtainJobUrl(jobCard);
         //then
         assertThat(result).isNotNull();
     }
 
     @Test
     @Order(2)
-    void obtainJobDescription() {
+    void obtainJobDescription() throws InterruptedException {
         //given
-        String URL = "https://www.linkedin.com/jobs/search?keywords=Junior%20Java&location=Germany&trk=public_jobs_jobs-search-bar_search-submit&position=2&pageNum=0&currentJobId=3625258171";
+        String URL = "https://www.linkedin.com/jobs/search?keywords=Junior%20Java&location=Germany&trk=public_jobs_jobs-search-bar_search-submit&position=3&pageNum=0";
+        driver.get(URL);
+        WebElement jobCard = new WebDriverWait(driver, Duration.ofSeconds(4))
+                .until(ExpectedConditions.presenceOfElementLocated(By
+                        .className("base-card")));
         //when
-        String result = underTest.obtainJobDescription(URL);
+        String result = underTest.obtainJobDescription(jobCard);
         //then
+        assertThat(result).isNotNull();
+
     }
 
     @Test
@@ -64,11 +76,11 @@ class WebScraperServiceTest {
         //given
         String URL = "https://www.linkedin.com/jobs/search?keywords=Junior%20Java&location=Germany&trk=public_jobs_jobs-search-bar_search-submit&position=2&pageNum=0&currentJobId=3625258171";
         driver.get(URL);
-        WebElement webElement = new WebDriverWait(driver, Duration.ofSeconds(2))
+        WebElement jobCard = new WebDriverWait(driver, Duration.ofSeconds(4))
                 .until(ExpectedConditions.presenceOfElementLocated(By
-                        .className("top-card-layout__card")));
+                        .className("base-card")));
         //when
-        List<String> result = underTest.obtainJobInfo(webElement);
+        List<String> result = underTest.obtainJobInfo(jobCard);
         //then
         assertThat(result).isNotNull();
     }
@@ -78,7 +90,7 @@ class WebScraperServiceTest {
     void fetchNewData() {
         //given
         String jobTitle = "Junior Java";
-        String location = "Germany";
+        String location = "Spain";
         //when
         List<List<String>> result = underTest.fetchNewData(jobTitle, location);
         //then
