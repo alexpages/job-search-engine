@@ -82,7 +82,7 @@ class WebScraperServiceTest {
                 .until(ExpectedConditions.presenceOfElementLocated(By
                         .xpath("//a[@data-tracking-control-name='public_jobs_jserp-result_search-card']")));
         //when
-        List<String> result = underTest.obtainJobInfo(jobCard);
+        List<String> result = underTest.obtainJobInfo();
         //then
         assertThat(result).isNotNull();
     }

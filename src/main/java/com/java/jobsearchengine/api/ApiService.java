@@ -36,9 +36,8 @@ public class ApiService {
 
     }
 
-    public List<Job> getJobs(String jobTitle, String location) {
+    public List<Job> getJobs(String jobTitle, String location) throws InterruptedException {
         if (validateLocation(location)){
-//            if(webScraperController.fetchNewData(jobTitle,location))
             return jobController.getJobs(jobTitle, location);
         }
         return null;

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "api/v1/job")
 public class JobController {
 
     private final JobService jobService;
@@ -20,16 +19,16 @@ public class JobController {
     }
 
     //TODO review method
-    public List<Job> getJobs(String jobTitle, String location){
+    public List<Job> getJobs(String jobTitle, String location) throws InterruptedException {
         List<Job> listJobs = jobService.getJobs(jobTitle, location);
         if (listJobs == null){
-            jobService.fetchData(jobTitle, location);
+            fetchData(jobTitle, location);
             listJobs = jobService.getJobs(jobTitle, location);
         }
         return listJobs;
     }
 
-    public void fetchData(String jobTitle, String location) {
+    public void fetchData(String jobTitle, String location) throws InterruptedException {
         jobService.fetchData(jobTitle, location);
     }
 
@@ -37,7 +36,7 @@ public class JobController {
         return jobService.createJob(elements);
     }
 
-        @DeleteMapping("/delete")
+    @DeleteMapping("/delete")
     public void deleteJobs(@RequestBody Job job){
         jobService.deleteJobs(job);
     }

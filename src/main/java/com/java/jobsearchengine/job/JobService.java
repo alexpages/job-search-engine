@@ -26,16 +26,18 @@ public class JobService {
         return jobRepository.findAll();
     }
 
-    public void fetchData(String jobTitle, String location) {
-
-        //TODO
+    public void fetchData(String jobTitle, String location) throws InterruptedException {
+        List<List<String>> jobs = webScraperController.fetchNewData(jobTitle,location);
+        for (List<String> job : jobs){
+            jobRepository.insert(List.of(createJob(job)));
+        }
     }
 
     public void deleteJobs(Job job) {
         jobRepository.delete(job);
     }
 
-    public Job createJob(ArrayList<String> elements) {
+    public Job createJob(List<String> elements) {
         Job job = new Job(
                 elements.get(0),
                 elements.get(1),

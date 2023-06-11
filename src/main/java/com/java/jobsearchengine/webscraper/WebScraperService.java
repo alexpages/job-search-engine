@@ -42,7 +42,7 @@ public class WebScraperService {
         return description;
     }
 
-    public List<String> obtainJobInfo(WebElement webElement) {
+    public List<String> obtainJobInfo() {
         List<String> extractedInfo = new ArrayList<>();
         extractedInfo.add(new WebDriverWait(driver, Duration.ofSeconds(2)) //Job title
                 .until(ExpectedConditions.presenceOfElementLocated(By
@@ -59,7 +59,7 @@ public class WebScraperService {
         return extractedInfo;
     }
 
-    public List<List<String>> fetchNewData(String jobTitle, String location) throws InterruptedException {
+    public List<List<String>> fetchNewData(String jobTitle, String location){
         //Get first 25 job cards
         String mainURL = "https://www.linkedin.com/jobs/search?" +
                 "keywords=" + jobTitle +
@@ -68,7 +68,11 @@ public class WebScraperService {
                 "position=" + "1" +
                 "&pageNum=0";
         driver.get(mainURL);
-        TimeUnit.MILLISECONDS.sleep(100);
+        try{
+            TimeUnit.MILLISECONDS.sleep(100);}
+        catch(Exception e){
+            System.out.println("Interrupted Exception");
+        }
         zoomOut(driver);
         WebElement jobSearchBoard = new WebDriverWait(driver, Duration.ofSeconds(20))
                 .until(ExpectedConditions.presenceOfElementLocated(By
@@ -85,7 +89,7 @@ public class WebScraperService {
             //Is a valid job
             boolean verification = nlpController.validateJob(jobDescription);
             if (verification) {
-                List<String> info = obtainJobInfo(jobCard);
+                List<String> info = obtainJobInfo();
                 info.add(obtainJobUrl(jobCard));
                 scrapedJobs.add(info);
             }

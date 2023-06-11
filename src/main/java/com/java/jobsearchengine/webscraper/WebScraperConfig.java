@@ -11,7 +11,7 @@ public class WebScraperConfig {
 
     @PostConstruct
     void postConstruct(){
-        System.setProperty("webdriver.chrome.driver", "webScraperDriver/chromedriver");
+        System.setProperty("webdriver.chrome.driver", "src/main/resources/webScraperDriver/chromedriver");
     }
 
     @Bean

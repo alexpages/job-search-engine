@@ -20,8 +20,10 @@ public class ApiController {
         this.apiService = apiService;
     }
 
-    @GetMapping("/") //Request
-    public List<Job> getJobs(String jobTitle, String location){
+    @GetMapping("/")
+    public List<Job> getJobs() throws InterruptedException {
+        String jobTitle = "Junior Java";
+        String location = "Spain";
         return apiService.getJobs(jobTitle,location);
     }
 
