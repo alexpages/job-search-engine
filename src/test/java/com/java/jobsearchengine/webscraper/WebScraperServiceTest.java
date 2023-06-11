@@ -1,24 +1,21 @@
 package com.java.jobsearchengine.webscraper;
 
+import org.openqa.selenium.JavascriptExecutor;
 import com.java.jobsearchengine.nlp.NlpController;
 import com.java.jobsearchengine.nlp.NlpService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -34,8 +31,9 @@ class WebScraperServiceTest {
     void setUp() {
         underTest = new WebScraperService(driver, nlpController);
     }
+
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         driver.quit();
     }
 
@@ -56,18 +54,22 @@ class WebScraperServiceTest {
 
     @Test
     @Order(2)
-    void obtainJobDescription() throws InterruptedException {
+    void obtainJobDescription() {
         //given
         String URL = "https://www.linkedin.com/jobs/search?keywords=Junior%20Java&location=Germany&trk=public_jobs_jobs-search-bar_search-submit&position=3&pageNum=0";
         driver.get(URL);
         WebElement jobCard = new WebDriverWait(driver, Duration.ofSeconds(4))
                 .until(ExpectedConditions.presenceOfElementLocated(By
-                        .className("base-card")));
+                        .xpath("//a[@data-tracking-control-name='public_jobs_jserp-result_search-card']")));
+        try {
+            TimeUnit.MILLISECONDS.sleep(500);
+        } catch (Exception e) {
+            System.out.println("Time");
+        }
         //when
         String result = underTest.obtainJobDescription(jobCard);
         //then
         assertThat(result).isNotNull();
-
     }
 
     @Test
@@ -78,7 +80,7 @@ class WebScraperServiceTest {
         driver.get(URL);
         WebElement jobCard = new WebDriverWait(driver, Duration.ofSeconds(4))
                 .until(ExpectedConditions.presenceOfElementLocated(By
-                        .className("base-card")));
+                        .xpath("//a[@data-tracking-control-name='public_jobs_jserp-result_search-card']")));
         //when
         List<String> result = underTest.obtainJobInfo(jobCard);
         //then
@@ -87,7 +89,7 @@ class WebScraperServiceTest {
 
     @Test
     @Order(4)
-    void fetchNewData() {
+    void fetchNewData() throws InterruptedException {
         //given
         String jobTitle = "Junior Java";
         String location = "Spain";

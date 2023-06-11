@@ -15,7 +15,7 @@ public class WebScraperController {
         this.webScraperService = webScraperService;
     }
 
-    public List<List<String>> fetchNewData(String jobTitle, String location){
+    public List<List<String>> fetchNewData(String jobTitle, String location) throws InterruptedException {
         return webScraperService.fetchNewData(jobTitle, location);
     }
 }

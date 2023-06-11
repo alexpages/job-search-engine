@@ -1,11 +1,13 @@
 package com.java.jobsearchengine.api;
 
+import com.java.jobsearchengine.job.Job;
 import com.java.jobsearchengine.job.JobController;
 import com.java.jobsearchengine.nlp.NlpController;
 import com.java.jobsearchengine.webscraper.WebScraperController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -34,4 +36,11 @@ public class ApiService {
 
     }
 
+    public List<Job> getJobs(String jobTitle, String location) {
+        if (validateLocation(location)){
+//            if(webScraperController.fetchNewData(jobTitle,location))
+            return jobController.getJobs(jobTitle, location);
+        }
+        return null;
+    }
 }

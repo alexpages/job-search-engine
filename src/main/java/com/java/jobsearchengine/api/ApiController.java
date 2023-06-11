@@ -22,10 +22,7 @@ public class ApiController {
 
     @GetMapping("/") //Request
     public List<Job> getJobs(String jobTitle, String location){
-        if (apiService.validateLocation(location)){
-            return jobController.getJobs(jobTitle, location);
-        }
-        return null;
+        return apiService.getJobs(jobTitle,location);
     }
 
 

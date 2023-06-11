@@ -3,7 +3,6 @@ package com.java.jobsearchengine.webscraper;
 import com.java.jobsearchengine.nlp.NlpController;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,6 @@ public class WebScraperService {
     }
 
     public String obtainJobUrl (WebElement webElement) {
-//        String link = webElement.findElement(By.cssSelector("a.base-card__full-link")).getAttribute("href");
         String link = webElement.findElement(By
                 .xpath("//*[@id=\"main-content\"]/section[2]/ul/li[1]/div"))
                 .findElement(By.xpath("//*[@id=\"main-content\"]/section[2]/ul/li[1]/div/a")).getAttribute("href");
@@ -36,21 +34,11 @@ public class WebScraperService {
     }
 
     public String obtainJobDescription(WebElement webElement){
-        new WebDriverWait(driver, Duration.ofSeconds(2))
-                .until(ExpectedConditions.presenceOfElementLocated(By
-                        .className("show-more-less-html__button"))).click();
-
+        JavascriptExecutor executor = (JavascriptExecutor) driver;
+        executor.executeScript("arguments[0].click();", webElement.findElement(By.xpath("//button[@data-tracking-control-name ='public_jobs_show-more-html-btn']")));
         String description = new WebDriverWait(driver, Duration.ofSeconds(2))
                 .until(ExpectedConditions.presenceOfElementLocated(By
-                        .className("description__text"))).getText();
-
-//        String description = webElement.findElement(By.className("show-more-less-html__markup")).getText();
-        ///html/body/div[3]/div/section/div[2]/div/section[1]/div/div/section/div
-        ///html/body/div[3]/div/section/div[2]/div/section[1]/div/div
-
-        //show-more-less-html__markup
-//        show-more-less-html__markup
-
+                        .className("show-more-less-html__markup"))).getText();
         return description;
     }
 
@@ -71,7 +59,7 @@ public class WebScraperService {
         return extractedInfo;
     }
 
-    public List<List<String>> fetchNewData(String jobTitle, String location){
+    public List<List<String>> fetchNewData(String jobTitle, String location) throws InterruptedException {
         //Get first 25 job cards
         String mainURL = "https://www.linkedin.com/jobs/search?" +
                 "keywords=" + jobTitle +
@@ -80,16 +68,18 @@ public class WebScraperService {
                 "position=" + "1" +
                 "&pageNum=0";
         driver.get(mainURL);
-        WebElement jobSearchBoard = new WebDriverWait(driver, Duration.ofSeconds(2))
+        TimeUnit.MILLISECONDS.sleep(100);
+        zoomOut(driver);
+        WebElement jobSearchBoard = new WebDriverWait(driver, Duration.ofSeconds(20))
                 .until(ExpectedConditions.presenceOfElementLocated(By
-                        .xpath("//*[@id=\"main-content\"]/section[2]/ul")));
+                        .className("jobs-search__results-list")));
         List<WebElement> jobCards = jobSearchBoard
-                .findElements(By.className("base-card__full-link"));
+                .findElements(By.xpath("//a[@data-tracking-control-name='public_jobs_jserp-result_search-card']"));
 
-        //Iterate over every job card
+        JavascriptExecutor executor = driver;
         List<List<String>>scrapedJobs = new ArrayList<>();
         for (WebElement jobCard: jobCards) {
-            jobCard.click();
+            executor.executeScript("arguments[0].click();", jobCard);
             scrollDown(driver);
             String jobDescription = obtainJobDescription(jobCard);
             //Is a valid job
@@ -104,13 +94,26 @@ public class WebScraperService {
         return scrapedJobs;
     }
 
-    private static void scrollDown(WebDriver driver) {
+    //JavaScript scripts
+    private static void scrollDown(WebDriver driver){
         JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
-        int scrollIncrement = 17;
+        int scrollIncrement = 15;
         int totalScroll = scrollIncrement * 10;
         for (int i = 0; i < totalScroll; i += scrollIncrement) {
             jsExecutor.executeScript("window.scrollBy(0, " + scrollIncrement + ");");
         }
+        //TODO
+        try {
+            TimeUnit.MILLISECONDS.sleep(150);
+        } catch (Exception e) {
+            System.out.println("Time");
+        }
+    }
+
+    private static void zoomOut(WebDriver driver){
+        JavascriptExecutor js = (JavascriptExecutor)driver;
+        String zoomChrome = "document.body.style.zoom = '25.0%'";
+        js.executeScript(zoomChrome);
     }
 
 }
